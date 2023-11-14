@@ -15,7 +15,7 @@ import { BiSolidUser } from "react-icons/bi"
 import { GrLinkPrevious } from "react-icons/gr"
 
 
-const ENDPOINT = "http://127.0.0.1:5173/"
+const ENDPOINT = "http://localhost:3030"
 
 const CodeBlockDetails = () => {
   const { id } = useParams()
