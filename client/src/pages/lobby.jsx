@@ -68,7 +68,7 @@ const Lobby = () => {
             </div>
             <h2>{block.title}</h2>
             <pre>
-              <code>{block?.code?.slice(0, 100) + "..."}</code>
+              <code>{block?.code || "..."}</code>
             </pre>
           </div>
         ))}

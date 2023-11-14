@@ -62,6 +62,22 @@ const CodeBlockDetails = () => {
   }, [id])
 
   useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      e.preventDefault()
+      socket &&
+        socket.emit("leaveCodeBlock", { ...codeBlock, code: editedCode })
+    }
+
+    window.addEventListener("beforeunload", handleBeforeUnload)
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload)
+      socket &&
+        socket.emit("leaveCodeBlock", { ...codeBlock, code: editedCode })
+    }
+  }, [id, editedCode, socket])
+
+  useEffect(() => {
     fetchCodeBlock(id)
   }, [id])
 
@@ -143,7 +159,9 @@ const CodeBlockDetails = () => {
         <span>{usersInRoom.length}</span>
         <BiSolidUser />
       </div>
-      {successMessage && <div style={{ color: "green", padding: '1em' }}>{successMessage}</div>}
+      {successMessage && (
+        <div style={{ color: "green", padding: "1em" }}>{successMessage}</div>
+      )}
       {errorMessage && <div className="error-message">{errorMessage}</div>}
       {isUserListOpen && (
         <div className="user-list-modal">

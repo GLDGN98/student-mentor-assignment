@@ -11,7 +11,10 @@ window.cs = BEcodeBlockService
 async function query() {
   try {
     const codeBlocks = await httpService.get("code-block")
-    return codeBlocks
+    const sortedCodeBlocks = codeBlocks.sort((a, b) =>
+      a.title.localeCompare(b.title)
+    )
+    return sortedCodeBlocks
   } catch (error) {
     console.error("Error fetching code block:", error)
     throw error.response.data
