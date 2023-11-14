@@ -12,7 +12,7 @@ import UserList from "../cmps/user-list"
 
 import { BiSolidUser } from "react-icons/bi"
 import { GrLinkPrevious } from "react-icons/gr"
-import Smiley from "../assets/img/smilyImage.jpg"
+import Loader from "../cmps/loader"
 
 const ENDPOINT = import.meta.env.VITE_SERVER_ENDPOINT
 
@@ -113,7 +113,7 @@ const CodeBlockDetails = () => {
   }
 
   if (!codeBlock) {
-    return <div>Loading...</div>
+    return <Loader />
   }
 
   return (
@@ -122,7 +122,9 @@ const CodeBlockDetails = () => {
         <GrLinkPrevious />
       </button>
       <h2>{codeBlock.title}</h2>
-      {codeBlock && codeBlock.code === codeBlock.solution_code && <span className="emoji">😊</span>}
+      {codeBlock && codeBlock.code === codeBlock.solution_code && (
+        <span className="emoji">😊</span>
+      )}
       {role === "Student" ? (
         <>
           <textarea
@@ -141,7 +143,7 @@ const CodeBlockDetails = () => {
         <span>{usersInRoom.length}</span>
         <BiSolidUser />
       </div>
-      {successMessage && <div style={{ color: "green" }}>{successMessage}</div>}
+      {successMessage && <div style={{ color: "green", padding: '1em' }}>{successMessage}</div>}
       {errorMessage && <div className="error-message">{errorMessage}</div>}
       {isUserListOpen && (
         <div className="user-list-modal">

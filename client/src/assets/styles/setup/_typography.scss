@@ -1,10 +1,7 @@
 @font-face {
     font-family: montserrat;
-    src: local('montserrat'), url(@/assets/styles/fonts/Montserrat-Regular) format('truetype');
+    src: url('../../fonts/Montserrat-Regular.ttf') format('truetype');
 }
-
-
-
 
 @font-face {
     font-family: montserrat-semibold;
