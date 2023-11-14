@@ -9,14 +9,12 @@ import "highlight.js/styles/default.css"
 import { BEcodeBlockService } from "../services/code-block.service"
 
 import UserList from "../cmps/user-list"
-// import CongratsLottieAnimation from "../cmps/congrats-lottie-animation"
 
 import { BiSolidUser } from "react-icons/bi"
 import { GrLinkPrevious } from "react-icons/gr"
+import Smiley from "../assets/img/smilyImage.jpg"
 
-
-const ENDPOINT = import.meta.env.SERVER_ENDPOINT
-
+const ENDPOINT = import.meta.env.VITE_SERVER_ENDPOINT
 
 const CodeBlockDetails = () => {
   const { id } = useParams()
@@ -27,11 +25,9 @@ const CodeBlockDetails = () => {
   const [role, setRole] = useState("")
   const [usersInRoom, setUsersInRoom] = useState([])
   const [socket, setSocket] = useState(null)
-  const [showAnimation, setShowAnimation] = useState(false)
   const [isUserListOpen, setIsUserListOpen] = useState(false)
   const [successMessage, setSuccessMessage] = useState("")
 
-  
   useEffect(() => {
     const newSocket = socketIOClient(ENDPOINT)
     setSocket(newSocket)
@@ -75,22 +71,11 @@ const CodeBlockDetails = () => {
     }
   }, [codeBlock])
 
-  useEffect(() => {
-    if (codeBlock && codeBlock.code === codeBlock.solution_code) {
-      setShowAnimation(true)
-      const timer = setTimeout(() => {
-        setShowAnimation(false)
-      }, 2500)
-
-      return () => clearTimeout(timer)
-    }
-  }, [codeBlock])
-
   const fetchCodeBlock = async (blockId) => {
     try {
       const codeBlockDetails = await BEcodeBlockService.getById(blockId)
       setCodeBlock(codeBlockDetails)
-      setEditedCode(codeBlockDetails.code) // Initialize editedCode with the fetched code
+      setEditedCode(codeBlockDetails.code)
     } catch (err) {
       console.error("Error fetching code block:", err)
       showError("Failed to load the code block. Please try again later.")
@@ -137,7 +122,7 @@ const CodeBlockDetails = () => {
         <GrLinkPrevious />
       </button>
       <h2>{codeBlock.title}</h2>
-
+      {codeBlock && codeBlock.code === codeBlock.solution_code && <span className="emoji">😊</span>}
       {role === "Student" ? (
         <>
           <textarea
@@ -152,7 +137,6 @@ const CodeBlockDetails = () => {
           <code className="hljs">{codeBlock.code || "..."}</code>
         </pre>
       )}
-      {/* {showAnimation && <CongratsLottieAnimation />} */}
       <div className="user-list-icon" onClick={toggleUserList}>
         <span>{usersInRoom.length}</span>
         <BiSolidUser />

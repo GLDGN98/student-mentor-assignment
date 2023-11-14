@@ -1,7 +1,4 @@
-process.env.NODE_ENV === "production"
-  ? require("dotenv").config({ path: "../.env.production" })
-  : require("dotenv").config({ path: "../.env" })
-
+require("dotenv").config()
 const express = require("express")
 const http = require("http")
 const cors = require("cors")

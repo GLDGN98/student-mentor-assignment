@@ -3,6 +3,14 @@
   padding-top: 2em;
 
 
+  .emoji {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2em;
+  }
+
+
   .user-list-modal {
     display: flex;
     flex-direction: column;

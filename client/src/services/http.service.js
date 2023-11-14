@@ -1,6 +1,6 @@
 import Axios from "axios"
 
-const BASE_URL = import.meta.env.SERVER_ENDPOINT + "/api/"
+const SERVER_API_ENDPOINT = import.meta.env.VITE_SERVER_ENDPOINT + "/api/"
 
 var axios = Axios.create({
   withCredentials: false,
@@ -24,7 +24,7 @@ export const httpService = {
 async function ajax(endpoint, method = "GET", data = null) {
   try {
     const res = await axios({
-      url: `${BASE_URL}${endpoint}`,
+      url: `${SERVER_API_ENDPOINT}${endpoint}`,
       method,
       data,
       params: method === "GET" ? data : null,
