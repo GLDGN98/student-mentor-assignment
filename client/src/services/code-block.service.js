@@ -1,7 +1,5 @@
 import { httpService } from "./http.service.js"
 
-const STORAGE_KEY = "code-block"
-
 export const BEcodeBlockService = {
   query,
   getById,
@@ -12,7 +10,7 @@ window.cs = BEcodeBlockService
 
 async function query() {
   try {
-    const codeBlocks = await httpService.get(STORAGE_KEY)
+    const codeBlocks = await httpService.get("code-block")
     return codeBlocks
   } catch (error) {
     console.error("Error fetching code block:", error)

@@ -9,13 +9,14 @@ import "highlight.js/styles/default.css"
 import { BEcodeBlockService } from "../services/code-block.service"
 
 import UserList from "../cmps/user-list"
-import CongratsLottieAnimation from "../cmps/congrats-lottie-animation"
+// import CongratsLottieAnimation from "../cmps/congrats-lottie-animation"
 
 import { BiSolidUser } from "react-icons/bi"
 import { GrLinkPrevious } from "react-icons/gr"
 
 
-const ENDPOINT = "http://localhost:3030"
+const ENDPOINT = import.meta.env.SERVER_ENDPOINT
+
 
 const CodeBlockDetails = () => {
   const { id } = useParams()
@@ -151,7 +152,7 @@ const CodeBlockDetails = () => {
           <code className="hljs">{codeBlock.code || "..."}</code>
         </pre>
       )}
-      {showAnimation && <CongratsLottieAnimation />}
+      {/* {showAnimation && <CongratsLottieAnimation />} */}
       <div className="user-list-icon" onClick={toggleUserList}>
         <span>{usersInRoom.length}</span>
         <BiSolidUser />
