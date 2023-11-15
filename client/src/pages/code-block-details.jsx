@@ -29,6 +29,7 @@ const CodeBlockDetails = () => {
   const [successMessage, setSuccessMessage] = useState("")
   const currentCodeRef = useRef()
 
+  // Initialize and manage socket connections
   useEffect(() => {
     const newSocket = socketIOClient(ENDPOINT)
     setSocket(newSocket)
@@ -61,10 +62,12 @@ const CodeBlockDetails = () => {
     return () => newSocket.disconnect()
   }, [id])
 
+  // Keep currentCodeRef up-to-date with editedCode
   useEffect(() => {
     currentCodeRef.current = editedCode
   }, [editedCode])
 
+  // Handle before unload event for socket disconnection
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       e.preventDefault()
@@ -85,12 +88,17 @@ const CodeBlockDetails = () => {
     }
   }, [id, editedCode, socket, currentCodeRef.current])
 
+  // Fetch code block details
   useEffect(() => {
     fetchCodeBlock(id)
-  }, [id])
+  }, [])
 
+  // Apply syntax highlighting
   useEffect(() => {
     if (codeBlock) {
+      document.querySelectorAll("code.hljs").forEach((block) => {
+        block.removeAttribute("data-highlighted")
+      })
       Highlight.highlightAll()
     }
   }, [codeBlock])
