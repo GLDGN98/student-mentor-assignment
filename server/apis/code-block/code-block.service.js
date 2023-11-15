@@ -25,10 +25,10 @@ const getById = async (id) => {
 const update = async (id, updatedCodeBlock) => {
   console.log(updatedCodeBlock.code)
   const { code } = updatedCodeBlock
-  const updateQuery = "UPDATE code_blocks SET  code = $1 WHERE id = $2"
+  const updateQuery = "UPDATE code_blocks SET code = $1 WHERE id = $2"
   try {
     const result = await pool.query(updateQuery, [code, id])
-    return result.rowCount ? result.rows[0] : null
+    return result.rowCount > 0
   } catch (error) {
     console.error("Error in update:", error)
     throw new Error("Database query failed in update for ID: " + id)

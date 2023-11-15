@@ -62,32 +62,12 @@ const CodeBlockDetails = () => {
     return () => newSocket.disconnect()
   }, [id])
 
-  // Keep currentCodeRef up-to-date with editedCode
   useEffect(() => {
     currentCodeRef.current = editedCode
-  }, [editedCode])
-
-  // Handle before unload event for socket disconnection
-  useEffect(() => {
-    const handleBeforeUnload = (e) => {
-      e.preventDefault()
-      if (socket) {
-        socket.emit("leaveCodeBlock", {
-          ...codeBlock,
-          code: currentCodeRef.current,
-        })
-      }
-    }
-
-    window.addEventListener("beforeunload", handleBeforeUnload)
-
     return () => {
-      console.log(editedCode);
-      window.removeEventListener("beforeunload", handleBeforeUnload)
-      socket &&
-        socket.emit("leaveCodeBlock", { ...codeBlock, code: editedCode })
+      BEcodeBlockService.save({ ...codeBlock, code: editedCode })
     }
-  }, [id, editedCode, socket, currentCodeRef.current])
+  }, [editedCode])
 
   // Fetch code block details
   useEffect(() => {
