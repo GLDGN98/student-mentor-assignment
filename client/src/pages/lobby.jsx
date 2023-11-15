@@ -5,6 +5,7 @@ import { BEcodeBlockService } from "../services/code-block.service"
 import { IoMdDoneAll } from "react-icons/io"
 import { BiSmile } from "react-icons/bi"
 import { useError } from "../context/error-context"
+import Loader from "../cmps/loader"
 
 const Lobby = () => {
   const [codeBlocks, setCodeBlocks] = useState([])
@@ -44,6 +45,8 @@ const Lobby = () => {
   const isCompleted = (codeBlock) => {
     return codeBlock.code === codeBlock.solution_code
   }
+
+  if (!codeBlocks.length) return <Loader />
 
   return (
     <div className="lobby">

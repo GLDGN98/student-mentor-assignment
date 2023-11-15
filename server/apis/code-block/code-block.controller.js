@@ -27,8 +27,10 @@ const getCodeBlockById = async (req, res) => {
 const updateCodeBlock = async (req, res) => {
   const { id } = req.params
   try {
-    const updatedCodeBlock = await codeBlockService.update(parseInt(id), req.body)
-    console.log(updatedCodeBlock)
+    const updatedCodeBlock = await codeBlockService.update(
+      parseInt(id),
+      req.body
+    )
     if (!updatedCodeBlock) {
       return res
         .status(404)

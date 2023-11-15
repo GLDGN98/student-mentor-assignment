@@ -4,10 +4,10 @@ export const BEcodeBlockService = {
   query,
   getById,
   save,
-  remove,
 }
 window.cs = BEcodeBlockService
 
+// Fetches a list of code blocks and sorts them alphabetically by title
 async function query() {
   try {
     const codeBlocks = await httpService.get("code-block")
@@ -21,6 +21,7 @@ async function query() {
   }
 }
 
+// Retrieves a specific code block by its ID
 async function getById(codeBlockId) {
   try {
     const response = await httpService.get(`code-block/${codeBlockId}`)
@@ -31,15 +32,7 @@ async function getById(codeBlockId) {
   }
 }
 
-async function remove(codeBlockId) {
-  try {
-    return httpService.delete(`code-block/${codeBlockId}`)
-  } catch (error) {
-    console.error("Error removing code block:", error)
-    throw error.response.data
-  }
-}
-
+// Saves a code block
 async function save(codeBlock) {
   try {
     var savedBlockCode

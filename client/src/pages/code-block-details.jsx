@@ -17,39 +17,42 @@ import Loader from "../cmps/loader"
 const ENDPOINT = import.meta.env.VITE_SERVER_ENDPOINT
 
 const CodeBlockDetails = () => {
-  const { id } = useParams()
-  const navigate = useNavigate()
-  const { showError, errorMessage } = useError()
   const [codeBlock, setCodeBlock] = useState(null)
   const [editedCode, setEditedCode] = useState("")
   const [role, setRole] = useState("")
   const [usersInRoom, setUsersInRoom] = useState([])
   const [socket, setSocket] = useState(null)
   const [isUserListOpen, setIsUserListOpen] = useState(false)
-  const [successMessage, setSuccessMessage] = useState("")
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const { showError, errorMessage } = useError()
   const currentCodeRef = useRef()
   const debounceTimerRef = useRef()
 
-  // Initialize and manage socket connections
+  // Initialize and manage socket connections for real-time collaboration
   useEffect(() => {
+    // Establish a socket connection
     const newSocket = socketIOClient(ENDPOINT)
     setSocket(newSocket)
 
+    // Register event handlers for socket events
     newSocket.on("connect", () => {
-      console.log("Socket connected:", newSocket.id)
+      // Join a room for the specific code block
       newSocket.emit("joinCodeBlock", id)
     })
-
+    // Handle user role assignment from server
     newSocket.on("assignRole", (data) => {
       if (data.socketId === newSocket.id) {
         setRole(data.role)
       }
     })
 
+    // Update the list of users in the room
     newSocket.on("updateUserList", (updatedUsersList) => {
       setUsersInRoom(updatedUsersList)
     })
 
+    // Handle real-time updates to the code block
     newSocket.on("codeBlockUpdated", (updatedCodeBlock) => {
       if (updatedCodeBlock.id === id) {
         setCodeBlock((prevCodeBlock) => ({
@@ -59,24 +62,26 @@ const CodeBlockDetails = () => {
         setEditedCode(updatedCodeBlock.code)
       }
     })
-
+    // Cleanup: disconnect socket when component unmounts
     return () => newSocket.disconnect()
   }, [id])
 
-  // Keep currentCodeRef up-to-date with editedCode
+  // Sync editedCode with the current code reference
   useEffect(() => {
     currentCodeRef.current = editedCode
+
+    // Auto-save code changes when component unmounts
     return () => {
       BEcodeBlockService.save({ ...codeBlock, code: editedCode })
     }
   }, [editedCode])
 
-  // Fetch code block details
+  // Fetch code block details on component mount
   useEffect(() => {
     fetchCodeBlock(id)
   }, [])
 
-  // Apply syntax highlighting
+  // Apply syntax highlighting once code block is loaded
   useEffect(() => {
     if (codeBlock) {
       document.querySelectorAll("code.hljs").forEach((block) => {
@@ -86,6 +91,7 @@ const CodeBlockDetails = () => {
     }
   }, [codeBlock])
 
+  // Function to fetch code block details from backend
   const fetchCodeBlock = async (blockId) => {
     try {
       const codeBlockDetails = await BEcodeBlockService.getById(blockId)
@@ -101,20 +107,14 @@ const CodeBlockDetails = () => {
     setIsUserListOpen(!isUserListOpen)
   }
 
-  // const handleCodeChange = (e) => {
-  //   const updatedCode = e.target.value
-  //   setEditedCode(updatedCode)
-  //   currentCodeRef.current = updatedCode // Update the ref synchronously
-  //   socket.emit("editCodeBlock", { id, code: updatedCode })
-  // }
-  // Debounce function
+  // Debounce function to limit the rate of function execution
   const debounce = (func, delay) => {
     clearTimeout(debounceTimerRef.current)
     debounceTimerRef.current = setTimeout(func, delay)
   }
 
+  // Handles changes to the code in the editor
   const handleCodeChange = (e) => {
-    console.log("sas")
     const updatedCode = e.target.value
     setEditedCode(updatedCode)
     debounce(() => {
@@ -122,29 +122,11 @@ const CodeBlockDetails = () => {
     }, 500)
   }
 
-  const handleSave = async () => {
-    try {
-      const updatedCodeBlock = { ...codeBlock, code: editedCode }
-      await BEcodeBlockService.save(updatedCodeBlock)
-      setCodeBlock(updatedCodeBlock)
-      setSuccessMessage("Changes saved successfully!")
-    } catch (err) {
-      console.error("Error saving code block:", err)
-      showError("Failed to save the code block. Please try again later.")
-    }
-
-    setTimeout(() => {
-      setSuccessMessage("")
-    }, 2000)
-  }
-
   const handleGoBackToLobby = () => {
     navigate("/")
   }
 
-  if (!codeBlock) {
-    return <Loader />
-  }
+  if (!codeBlock) return <Loader />
 
   return (
     <div className="code-block-details">
@@ -162,7 +144,6 @@ const CodeBlockDetails = () => {
             value={editedCode}
             onChange={handleCodeChange}
           />
-          <button onClick={handleSave}>Save</button>
         </>
       ) : (
         <pre className="pre-code-block">
@@ -173,9 +154,6 @@ const CodeBlockDetails = () => {
         <span>{usersInRoom.length}</span>
         <BiSolidUser />
       </div>
-      {successMessage && (
-        <div style={{ color: "green", padding: "1em" }}>{successMessage}</div>
-      )}
       {errorMessage && <div className="error-message">{errorMessage}</div>}
       {isUserListOpen && (
         <div className="user-list-modal">
