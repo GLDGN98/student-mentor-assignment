@@ -28,6 +28,7 @@ const CodeBlockDetails = () => {
   const [isUserListOpen, setIsUserListOpen] = useState(false)
   const [successMessage, setSuccessMessage] = useState("")
   const currentCodeRef = useRef()
+  const debounceTimerRef = useRef()
 
   // Initialize and manage socket connections
   useEffect(() => {
@@ -62,6 +63,7 @@ const CodeBlockDetails = () => {
     return () => newSocket.disconnect()
   }, [id])
 
+  // Keep currentCodeRef up-to-date with editedCode
   useEffect(() => {
     currentCodeRef.current = editedCode
     return () => {
@@ -99,11 +101,25 @@ const CodeBlockDetails = () => {
     setIsUserListOpen(!isUserListOpen)
   }
 
+  // const handleCodeChange = (e) => {
+  //   const updatedCode = e.target.value
+  //   setEditedCode(updatedCode)
+  //   currentCodeRef.current = updatedCode // Update the ref synchronously
+  //   socket.emit("editCodeBlock", { id, code: updatedCode })
+  // }
+  // Debounce function
+  const debounce = (func, delay) => {
+    clearTimeout(debounceTimerRef.current)
+    debounceTimerRef.current = setTimeout(func, delay)
+  }
+
   const handleCodeChange = (e) => {
+    console.log("sas")
     const updatedCode = e.target.value
     setEditedCode(updatedCode)
-    currentCodeRef.current = updatedCode // Update the ref synchronously
-    socket.emit("editCodeBlock", { id, code: updatedCode })
+    debounce(() => {
+      socket.emit("editCodeBlock", { id, code: updatedCode })
+    }, 500)
   }
 
   const handleSave = async () => {
