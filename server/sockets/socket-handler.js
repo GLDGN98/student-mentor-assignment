@@ -1,22 +1,32 @@
-const codeBlockService = require("../apis/code-block/code-block.service") // Update with actual path
+const codeBlockService = require("../apis/code-block/code-block.service") // Code block service for database operations
 
-let codeBlockMentors = {}
-let usersInRooms = {} // New object to track users in each room
+let codeBlockMentors = {} // Tracks mentors for each code block
+let usersInRooms = {} // Tracks users (and their roles) in each room
 
 const socketHandlers = (io) => {
   io.on("connection", (socket) => {
     console.log("New client connected", socket.id)
 
+    // Handle user joining a code block
     socket.on("joinCodeBlock", (codeBlockId) =>
       handleJoinCodeBlock(socket, codeBlockId)
     )
-    socket.on("editCodeBlock", (data) => handleEditCodeBlock(socket, data))
-    socket.on("disconnect", () => handleDisconnect(socket))
-    socket.on("leaveCodeBlock", (data) => {
-      saveCodeBlock(data)
+
+    // Handle code block edits
+    socket.on("editCodeBlock", (codeBlockData) =>
+      handleEditCodeBlock(codeBlockData)
+    )
+
+    // Handle socket disconnection
+    socket.on("disconnect", () => handleUserDisconnect(socket))
+
+    // Handle user explicitly leaving a code block
+    socket.on("leaveCodeBlock", (codeBlock) => {
+      saveCodeBlock(codeBlock)
     })
   })
 
+  // Adds user to room and updates role
   function handleJoinCodeBlock(socket, codeBlockId) {
     socket.join(codeBlockId)
     console.log(`Socket ${socket.id} joined room ${codeBlockId}`)
@@ -26,33 +36,46 @@ const socketHandlers = (io) => {
     broadcastUserList(codeBlockId)
   }
 
-  async function saveCodeBlock(data) {
+  // Saves the code block's current state
+  async function saveCodeBlock(codeBlock) {
     try {
-      await codeBlockService.update(data.id, { ...data, code: data.code })
-      console.log(`Auto-saved code block for room ${data.id}`)
+      await codeBlockService.update(codeBlock.id, {
+        ...codeBlock,
+        code: codeBlock.code,
+      })
+      console.log(`Auto-saved code block for room ${codeBlock.id}`)
     } catch (error) {
-      console.error(`Error auto-saving code block for room ${data.id}:`, error)
+      console.error(
+        `Error auto-saving code block for room ${codeBlock.id}:`,
+        error
+      )
     }
   }
 
-  function handleEditCodeBlock(socket, data) {
-    io.to(data.id).emit("codeBlockUpdated", data)
+  // Broadcasts updated code block to all users in the room
+  function handleEditCodeBlock(updatedCodeBlock) {
+    io.to(updatedCodeBlock.id).emit("codeBlockUpdated", updatedCodeBlock)
   }
 
-  function handleDisconnect(socket) {
+  // Removes user from all rooms on disconnect
+  function handleUserDisconnect(socket) {
     console.log("Client disconnected", socket.id)
-    saveCodeBlock(socket.id) // Auto-save on disconnect
     removeUserFromAllRooms(socket.id)
   }
 
+  // Adds a user to a room and assigns a role
   function addUserToRoom(socketId, codeBlockId) {
     if (!usersInRooms[codeBlockId]) {
-      usersInRooms[codeBlockId] = []
+      usersInRooms[codeBlockId] = new Map() // Initialize as a Map for efficient lookups
     }
     let assignedRole = codeBlockMentors[codeBlockId] ? "Student" : "Mentor"
-    usersInRooms[codeBlockId].push({ id: socketId, role: assignedRole })
+    usersInRooms[codeBlockId].set(socketId, {
+      id: socketId,
+      role: assignedRole,
+    })
   }
 
+  // Assigns a mentor or student role to the user
   function assignRole(socket, codeBlockId) {
     if (!codeBlockMentors[codeBlockId]) {
       codeBlockMentors[codeBlockId] = socket.id
@@ -65,37 +88,23 @@ const socketHandlers = (io) => {
     }
   }
 
+  // Sends updated user list to all users in the room
   function broadcastUserList(codeBlockId) {
-    let usersList = usersInRooms[codeBlockId].map((user) => ({
-      id: user.id,
-      role: user.role,
-    }))
+    let usersList = Array.from(usersInRooms[codeBlockId].values())
     io.to(codeBlockId).emit("updateUserList", usersList)
   }
 
+  // Removes a user from all rooms they are part of
   function removeUserFromAllRooms(socketId) {
-    // Loop through each codeBlockId, which is a key in the codeBlockMentors object
-    for (let codeBlockId in codeBlockMentors) {
-      // Check if the current codeBlockId's mentor is the one to be removed
-      if (codeBlockMentors[codeBlockId] === socketId) {
-        delete codeBlockMentors[codeBlockId] // Remove the mentor from the code block
-        io.to(codeBlockId).emit("mentorDisconnected") // Notify users in the room about the mentor's disconnection
-      }
+    for (let codeBlockId in usersInRooms) {
+      if (usersInRooms[codeBlockId].has(socketId)) {
+        usersInRooms[codeBlockId].delete(socketId) // Remove user directly
 
-      // Now, check and handle the usersInRooms object
-      // Ensure the codeBlockId exists in usersInRooms to avoid undefined errors
-      if (usersInRooms[codeBlockId]) {
-        // Find if the user (socketId) exists in the current room's users list
-        let wasInRoom = usersInRooms[codeBlockId].find(
-          (user) => user.id === socketId
-        )
-        if (wasInRoom) {
-          // Filter out the user from the room's user list
-          usersInRooms[codeBlockId] = usersInRooms[codeBlockId].filter(
-            (user) => user.id !== socketId
-          )
-          broadcastUserList(codeBlockId) // Broadcast the updated user list to the room
+        if (codeBlockMentors[codeBlockId] === socketId) {
+          delete codeBlockMentors[codeBlockId] // Update mentor if necessary
         }
+
+        broadcastUserList(codeBlockId) // Update users list
       }
     }
   }

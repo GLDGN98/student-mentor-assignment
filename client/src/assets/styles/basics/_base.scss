@@ -1,15 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Livvic:wght@400;600;700&family=Montserrat&display=swap');
+
 * {
   box-sizing: border-box;
 }
 
-::selection {
-  // background-color: $clr1;
-  // color: $clr6;
-}
-
 html {
-  font-family: montserrat;
   line-height: 1.6;
   background-color: #e0e0e0;
 }

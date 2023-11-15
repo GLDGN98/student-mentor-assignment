@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useError } from "../context/error-context"
 
@@ -27,6 +27,7 @@ const CodeBlockDetails = () => {
   const [socket, setSocket] = useState(null)
   const [isUserListOpen, setIsUserListOpen] = useState(false)
   const [successMessage, setSuccessMessage] = useState("")
+  const currentCodeRef = useRef()
 
   useEffect(() => {
     const newSocket = socketIOClient(ENDPOINT)
@@ -48,7 +49,6 @@ const CodeBlockDetails = () => {
     })
 
     newSocket.on("codeBlockUpdated", (updatedCodeBlock) => {
-      console.log(updatedCodeBlock)
       if (updatedCodeBlock.id === id) {
         setCodeBlock((prevCodeBlock) => ({
           ...prevCodeBlock,
@@ -62,10 +62,18 @@ const CodeBlockDetails = () => {
   }, [id])
 
   useEffect(() => {
+    currentCodeRef.current = editedCode
+  }, [editedCode])
+
+  useEffect(() => {
     const handleBeforeUnload = (e) => {
       e.preventDefault()
-      socket &&
-        socket.emit("leaveCodeBlock", { ...codeBlock, code: editedCode })
+      if (socket) {
+        socket.emit("leaveCodeBlock", {
+          ...codeBlock,
+          code: currentCodeRef.current,
+        })
+      }
     }
 
     window.addEventListener("beforeunload", handleBeforeUnload)
@@ -75,7 +83,7 @@ const CodeBlockDetails = () => {
       socket &&
         socket.emit("leaveCodeBlock", { ...codeBlock, code: editedCode })
     }
-  }, [id, editedCode, socket])
+  }, [id, editedCode, socket, currentCodeRef.current])
 
   useEffect(() => {
     fetchCodeBlock(id)
@@ -105,6 +113,7 @@ const CodeBlockDetails = () => {
   const handleCodeChange = (e) => {
     const updatedCode = e.target.value
     setEditedCode(updatedCode)
+    currentCodeRef.current = updatedCode // Update the ref synchronously
     socket.emit("editCodeBlock", { id, code: updatedCode })
   }
 

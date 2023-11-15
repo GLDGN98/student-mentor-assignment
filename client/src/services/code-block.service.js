@@ -48,8 +48,6 @@ async function save(codeBlock) {
         `code-block/${codeBlock.id}`,
         codeBlock
       )
-    } else {
-      savedBlockCode = await httpService.post("code-block", codeBlock)
     }
     return savedBlockCode
   } catch (error) {

@@ -15,6 +15,7 @@ const Lobby = () => {
     loadCodeBlocks()
   }, [])
 
+
   async function loadCodeBlocks() {
     try {
       const codeBlocksData = await BEcodeBlockService.query()
