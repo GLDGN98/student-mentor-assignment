@@ -173,3 +173,11 @@
 
   }
 }
+
+
+@media (max-width: 475px) {
+  .code-block-details {
+    max-width: 350px;
+    margin: 0 auto;
+  }
+}
