@@ -82,6 +82,7 @@ const CodeBlockDetails = () => {
     window.addEventListener("beforeunload", handleBeforeUnload)
 
     return () => {
+      console.log(editedCode);
       window.removeEventListener("beforeunload", handleBeforeUnload)
       socket &&
         socket.emit("leaveCodeBlock", { ...codeBlock, code: editedCode })

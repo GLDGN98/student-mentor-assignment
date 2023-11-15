@@ -24,16 +24,6 @@ const getCodeBlockById = async (req, res) => {
   }
 }
 
-const createCodeBlock = async (req, res) => {
-  try {
-    const newCodeBlock = await codeBlockService.create(req.body)
-    res.status(201).json(newCodeBlock)
-  } catch (error) {
-    console.error("Error in createCodeBlock:", error)
-    res.status(500).send("Error creating new code block in database")
-  }
-}
-
 const updateCodeBlock = async (req, res) => {
   const { id } = req.params
   try {
@@ -53,6 +43,5 @@ const updateCodeBlock = async (req, res) => {
 module.exports = {
   getAllCodeBlocks,
   getCodeBlockById,
-  createCodeBlock,
   updateCodeBlock,
 }

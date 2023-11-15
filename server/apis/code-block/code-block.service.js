@@ -22,36 +22,12 @@ const getById = async (id) => {
   }
 }
 
-const create = async (newCodeBlock) => {
-  const { title, code, solution_code, difficulty } = newCodeBlock
-  const insertQuery =
-    "INSERT INTO code_blocks (title, code, solution_code, difficulty) VALUES ($1, $2, $3, $4) RETURNING *"
-  try {
-    const result = await pool.query(insertQuery, [
-      title,
-      code,
-      solution_code,
-      difficulty,
-    ])
-    return result.rows[0]
-  } catch (error) {
-    console.error("Error in create:", error)
-    throw new Error("Database query failed in create")
-  }
-}
-
 const update = async (id, updatedCodeBlock) => {
-  const { title, code, solution_code, difficulty } = updatedCodeBlock
-  const updateQuery =
-    "UPDATE code_blocks SET title = $1, code = $2, solution_code = $3, difficulty = $4 WHERE id = $5 RETURNING *"
+  console.log(updatedCodeBlock.code)
+  const { code } = updatedCodeBlock
+  const updateQuery = "UPDATE code_blocks SET  code = $1 WHERE id = $2"
   try {
-    const result = await pool.query(updateQuery, [
-      title,
-      code,
-      solution_code,
-      difficulty,
-      id,
-    ])
+    const result = await pool.query(updateQuery, [code, id])
     return result.rowCount ? result.rows[0] : null
   } catch (error) {
     console.error("Error in update:", error)
@@ -62,6 +38,5 @@ const update = async (id, updatedCodeBlock) => {
 module.exports = {
   getAll,
   getById,
-  create,
   update,
 }
