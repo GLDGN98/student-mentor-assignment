@@ -35,7 +35,7 @@ This project is an online coding web application designed for remote mentoring s
 
 - ## Setup and Installation
 
-1. **Clone the Repository**: git clone [[(https://github.com/GLDGN98/student-mentor-assignment/edit/main/README.md)]](https://github.com/GLDGN98/student-mentor-assignment/edit/main/README.md)
+1. **Clone the Repository**: git clone https://github.com/GLDGN98/student-mentor-assignment
 2. **Install Dependencies**: Navigate to the project directory in each enviorement (frontend and backend) and install dependencies (npm i)
 3.  **Start the Backend Server**: node server.js
 4.  **Launch the Frontend Application**: npm run dev
