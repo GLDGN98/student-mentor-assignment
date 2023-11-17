@@ -19,11 +19,6 @@ const socketHandlers = (io) => {
 
     // Handle socket disconnection
     socket.on("disconnect", () => handleUserDisconnect(socket))
-
-    // Handle user explicitly leaving a code block
-    socket.on("leaveCodeBlock", (codeBlock) => {
-      saveCodeBlock(codeBlock)
-    })
   })
 
   // Adds user to room and updates role
@@ -103,7 +98,6 @@ const socketHandlers = (io) => {
         if (codeBlockMentors[codeBlockId] === socketId) {
           delete codeBlockMentors[codeBlockId] // Update mentor if necessary
         }
-
         broadcastUserList(codeBlockId) // Update users list
       }
     }

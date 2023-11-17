@@ -40,6 +40,7 @@ const CodeBlockDetails = () => {
       // Join a room for the specific code block
       newSocket.emit("joinCodeBlock", id)
     })
+
     // Handle user role assignment from server
     newSocket.on("assignRole", (data) => {
       if (data.socketId === newSocket.id) {
@@ -62,6 +63,7 @@ const CodeBlockDetails = () => {
         setEditedCode(updatedCodeBlock.code)
       }
     })
+
     // Cleanup: disconnect socket when component unmounts
     return () => newSocket.disconnect()
   }, [id])
@@ -83,6 +85,7 @@ const CodeBlockDetails = () => {
 
   // Apply syntax highlighting once code block is loaded
   useEffect(() => {
+    // after the codeblock have been fetched
     if (codeBlock) {
       document.querySelectorAll("code.hljs").forEach((block) => {
         block.removeAttribute("data-highlighted")
